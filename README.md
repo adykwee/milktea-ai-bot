@@ -2,7 +2,7 @@
 
 Giải pháp trọn gói vận hành quán đồ uống thông minh, sử dụng Trí Tuệ Nhân Tạo (AI) để tư vấn, nhận đơn và xử lý tự động thanh toán cho khách hàng qua nền tảng Telegram.
 
-[Telegram Chat Bot](https://web.telegram.org/k/#@milkteachatbot)
+[Telegram Chat Bot](https://web.telegram.org/k/#@milkteachatbot) (@milkteachatbot)
 
 [Server](https://milktea-ai-bot.onrender.com)
 
