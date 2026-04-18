@@ -5,12 +5,34 @@ require('dotenv').config();
 const bot = require('./config/bot');
 const menuService = require('./services/menuService');
 const botService = require('./services/botService');
+const webhookController = require('./controllers/webhookController');
+const orderService = require('./services/orderService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Phục vụ giao diện Dashboard
+app.use(express.static('public'));
+
+// Trả về danh sách đơn hàng cho Dashboard
+app.get('/api/orders', async (req, res) => {
+    const orders = await orderService.getPendingOrders();
+    res.json(orders);
+});
+
+// Xử lý nút hoàn thành đơn hàng từ Dashboard
+app.post('/api/orders/:orderCode/complete', async (req, res) => {
+    const { orderCode } = req.params;
+    const success = await orderService.markOrderCompleted(orderCode);
+    if (success) {
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ success: false, message: "Không tìm thấy hoặc lỗi update" });
+    }
+});
 
 // Route xử lý Webhook
 app.post('/payos-webhook', (req, res) => webhookController.handlePayosWebhook(req, res));

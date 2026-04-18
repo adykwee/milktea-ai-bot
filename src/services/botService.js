@@ -12,7 +12,7 @@ class BotService {
         bot.start(async (ctx) => {
             const userId = ctx.from.id;
             // Reset lịch sử chat khi khách bắt đầu lại
-            userSessions.set(userId, []); 
+            userSessions.set(userId, []);
             await ctx.reply('Chào con, con muốn đặt món gì nè? Cô gửi con xem menu nhen!');
 
             const menuString = menuService.getMenuString();
@@ -22,10 +22,10 @@ class BotService {
         // Xử lý khi khách muốn đặt lại từ đầu
         bot.command('new', async (ctx) => {
             const userId = ctx.from.id;
-    
+
             // Xóa trắng lịch sử chat
-            userSessions.set(userId, []); 
-    
+            userSessions.set(userId, []);
+
             await ctx.reply('Cô đã bỏ đơn cũ đi rồi nhé. Con gọi lại từ đầu nha, con muốn uống gì nào?');
         });
 
@@ -59,28 +59,38 @@ class BotService {
                 if (aiResponse.type === 'text') {
                     // Nếu AI chỉ chat bình thường -> Gửi tin nhắn cho khách
                     await ctx.reply(aiResponse.content);
-                    
+
                     // Lưu câu trả lời của AI vào lịch sử
                     chatHistory.push({ role: 'assistant', content: aiResponse.content });
 
                 } else if (aiResponse.type === 'action' && aiResponse.action === 'CREATE_PAYMENT') {
                     // Nếu AI quyết định chốt đơn và gọi hàm thanh toán
                     const orderData = aiResponse.data;
-                    
+
                     await ctx.reply(`Cô đang lên hóa đơn cho con nhé. Tổng tiền của con là: ${orderData.total_amount.toLocaleString('vi-VN')} VNĐ.\nĐợi cô xíu để cô tạo mã QR nha!`);
-                    
+
                     // Lưu vào lịch sử để AI nhớ là đã chốt đơn
-                    chatHistory.push({ 
-                        role: 'assistant', 
-                        content: `Cô đã tạo đơn hàng với tổng tiền ${orderData.total_amount} VNĐ và đang gửi mã QR cho con.` 
+                    chatHistory.push({
+                        role: 'assistant',
+                        content: `Cô đã tạo đơn hàng với tổng tiền ${orderData.total_amount} VNĐ và đang gửi mã QR cho con.`
                     });
 
                     // Tạm in ra console để test. Bước tiếp theo ta sẽ gọi PayOS ở đây!
                     console.log('AI yêu cầu tạo thanh toán:', orderData);
-                    
+
                     // Gọi paymentService để tạo link PayOS và gửi cho khách
                     const paymentLink = await paymentService.createPaymentLink(orderData, userId);
-                    await ctx.reply(`Con quét mã QR ở link này để thanh toán cho cô nhé: ${paymentLink}`);
+
+                    // Gửi ảnh QR Code cho khách quét trực tiếp
+                    if (paymentLink.qrCode) {
+                        const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(paymentLink.qrCode)}&size=400`;
+                        await ctx.replyWithPhoto(
+                            { url: qrImageUrl },
+                            { caption: `Mã QR thanh toán của con đây nha!\n\nHoặc con bấm link này để thanh toán: ${paymentLink.checkoutUrl}` }
+                        );
+                    } else {
+                        await ctx.reply(`Con bấm link này để thanh toán cho cô nhé:\n${paymentLink.checkoutUrl}`);
+                    }
                 }
 
             } catch (error) {

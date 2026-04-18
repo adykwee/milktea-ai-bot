@@ -26,20 +26,20 @@ const tools = [
                                 name: { type: "string", description: "Tên món ăn" },
                                 size: { type: "string", enum: ["M", "L"], description: "Size của món (M hoặc L)" },
                                 quantity: { type: "integer", description: "Số lượng" },
-                                price: { type: "integer", description: "Đơn giá của 1 ly theo size" },
-                                customer_name: { type: "string", description: "Tên của khách hàng" },
-                                customer_address: { type: "string", description: "Địa chỉ giao hàng của khách" },
-                                customer_phone: { type: "string", description: "Số điện thoại của khách" }
+                                price: { type: "integer", description: "Đơn giá của 1 ly theo size" }
                             },
-                            required: ["items", "total_amount", "customer_name", "customer_address", "customer_phone"] // Bắt buộc phải có
+                            required: ["item_id", "name", "size", "quantity", "price"]
                         }
                     },
                     total_amount: {
                         type: "integer",
                         description: "Tổng số tiền của cả đơn hàng (VNĐ)"
-                    }
+                    },
+                    customer_name: { type: "string", description: "Tên của khách hàng" },
+                    customer_address: { type: "string", description: "Địa chỉ giao hàng của khách" },
+                    customer_phone: { type: "string", description: "Số điện thoại của khách" }
                 },
-                required: ["items", "total_amount"]
+                required: ["items", "total_amount", "customer_name", "customer_address", "customer_phone"]
             }
         }
     }
@@ -58,7 +58,7 @@ class AiService {
             3. Hãy hỏi rõ size (M hoặc L) và số lượng khi khách chọn món.
             4. Tóm tắt lại đơn hàng trước khi chốt.
             5. KHI KHÁCH CHỐT MÓN: Bắt buộc phải hỏi Tên và Địa chỉ giao hàng của khách.
-            6. CHỈ KHI NÀO KHÁCH ĐÃ ĐỒNG Ý CHỐT ĐƠN VÀ ĐÃ CUNG CẤP ĐỦ TÊN VÀ ĐỊA CHỈ VÀ SỐ ĐIỆN THOẠI, bạn mới được gọi hàm "create_payment" để xuất hóa đơn.
+            6. CHỈ KHI NÀO KHÁCH ĐÃ ĐỒNG Ý CHỐT ĐƠN VÀ ĐÃ CUNG CẤP ĐỦ TÊN VÀ ĐỊA CHỈ VÀ SỐ ĐIỆN THOẠI, bạn mới được gọi hàm "create_payment" để xuất hóa đơn. KHI ĐÃ ĐỦ THÔNG TIN, BẠN BẮT BUỘC PHẢI LẬP TỨC GỌI HÀM "create_payment" KHÔNG ĐƯỢC CHẦN CHỪ, KHÔNG ĐƯỢC HỎI THÊM CÂU NÀO KHÁC HAY CHỜ KHÁCH XÁC NHẬN.
             Trả lời ngắn gọn, tự nhiên như chat Telegram/Zalo, không dùng format markdown quá phức tạp.`
         };
     }

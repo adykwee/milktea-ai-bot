@@ -23,22 +23,22 @@ class PaymentService {
                 description: `Thanh toan TS ${orderCode}`, // Mô tả tối đa 25 ký tự
                 items: mappedItems,
                 // Các link điều hướng nếu dùng trên web (ở đây ta chat bot nên có thể để link mặc định)
-                returnUrl: "https://casso.vn", 
-                cancelUrl: "https://casso.vn" 
+                returnUrl: "https://casso.vn",
+                cancelUrl: "https://casso.vn"
             };
 
-            const paymentLinkResponse = await payos.createPaymentLink(requestData);
-            
+            const paymentLinkResponse = await payos.paymentRequests.create(requestData);
+
             // Lưu lại userId gắn với orderCode này để chờ Webhook
             pendingOrders.set(orderCode, {
                 userId: userId,
                 orderData: orderData // Chứa items, total_amount, customer_name, customer_address
             });
 
-            // Trả về một object chứa link checkout và link mã QR trực tiếp
+            // Trả về một object chứa link checkout và chuỗi nội dung QR chữ
             return {
                 checkoutUrl: paymentLinkResponse.checkoutUrl,
-                qrCodeUrl: paymentLinkResponse.qrCode // Link ảnh QR (nếu có)
+                qrCode: paymentLinkResponse.qrCode
             };
 
         } catch (error) {
